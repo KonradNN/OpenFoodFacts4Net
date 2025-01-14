@@ -2,8 +2,8 @@ name: Publish NuGet Package to GitHub Packages
 
 on:
   push:
-    tags:
-      - 'v*'  # Triggers the workflow for tag pushes like v1.0.0
+    branches:
+      - master
 
 jobs:
   build:
