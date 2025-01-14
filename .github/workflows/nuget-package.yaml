@@ -16,7 +16,7 @@ jobs:
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '7.x'
+        dotnet-version: '7.x' # Specify the version of .NET SDK to use
 
     - name: Restore dependencies
       run: dotnet restore src/ApiClient/ApiClient.csproj
@@ -27,53 +27,33 @@ jobs:
     - name: Pack NuGet package
       run: dotnet pack src/ApiClient/ApiClient.csproj --configuration Release --no-build
 
-    - name: Check if package version exists
-      id: check-api
-      run: |
-        PACKAGE_NAME=$(dotnet msbuild /t:GetPackageName /nologo /nodeReuse:false /p:VersionPrefix=1.0.0;Configuration=Release src/ApiClient/ApiClient.csproj | tail -n 1)
-        VERSION=$(dotnet msbuild /t:GetVersion /nologo /nodeReuse:false /p:VersionPrefix=1.0.0;Configuration=Release src/ApiClient/ApiClient.csproj | tail -n 1)
-        EXISTS=$(curl --silent -u ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} \
-          https://nuget.pkg.github.com/${{ github.repository_owner }}/download/${PACKAGE_NAME}/${VERSION}.nupkg | head -1 | wc -c)
-        echo "::set-output name=exists::$EXISTS"
-
     - name: Publish NuGet package to GitHub Packages
-      if: steps.check-api.outputs.exists == '0'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: dotnet nuget push 'src/ApiClient/bin/Release/*.nupkg' --source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json --api-key $GITHUB_TOKEN
-
   buildjson:
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-
-    - name: Setup .NET SDK
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: '7.x'
-
-    - name: Restore dependencies
-      run: dotnet restore src/Json/Json.csproj
-
-    - name: Build the project
-      run: dotnet build src/Json/Json.csproj --configuration Release --no-restore
-
-    - name: Pack NuGet package
-      run: dotnet pack src/Json/Json.csproj --configuration Release --no-build
-
-    - name: Check if package version exists
-      id: check-json
-      run: |
-        PACKAGE_NAME=$(dotnet msbuild /t:GetPackageName /nologo /nodeReuse:false /p:VersionPrefix=1.0.0;Configuration=Release src/Json/Json.csproj | tail -n 1)
-        VERSION=$(dotnet msbuild /t:GetVersion /nologo /nodeReuse:false /p:VersionPrefix=1.0.0;Configuration=Release src/Json/Json.csproj | tail -n 1)
-        EXISTS=$(curl --silent -u ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} \
-          https://nuget.pkg.github.com/${{ github.repository_owner }}/download/${PACKAGE_NAME}/${VERSION}.nupkg | head -1 | wc -c)
-        echo "::set-output name=exists::$EXISTS"
-
-    - name: Publish NuGet package to GitHub Packages
-      if: steps.check-json.outputs.exists == '0'
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: dotnet nuget push 'src/Json/bin/Release/*.nupkg' --source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json --api-key $GITHUB_TOKEN
+        runs-on: ubuntu-latest
+    
+        steps:
+        - name: Checkout code
+          uses: actions/checkout@v3
+    
+        - name: Setup .NET SDK
+          uses: actions/setup-dotnet@v3
+          with:
+            dotnet-version: '7.x' # Specify the version of .NET SDK to use
+    
+        - name: Restore dependencies
+          run: dotnet restore src/Json/Json.csproj
+    
+        - name: Build the project
+          run: dotnet build src/Json/Json.csproj --configuration Release --no-restore
+    
+        - name: Pack NuGet package
+          run: dotnet pack src/Json/Json.csproj --configuration Release --no-build
+    
+        - name: Publish NuGet package to GitHub Packages
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          run: dotnet nuget push 'src/Json/bin/Release/*.nupkg' --source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json --api-key $GITHUB_TOKEN
+    
