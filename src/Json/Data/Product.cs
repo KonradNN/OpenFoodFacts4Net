@@ -8,6 +8,10 @@ namespace OpenFoodFacts4Net.Json.Data
 {
     public class Product
     {
+        
+        [JsonProperty("abbreviated_product_name")]
+        public string AbbreviatedProductName { get; set; }
+
         [JsonProperty("additives_tags")]
         public IEnumerable<string> AdditivesTags { get; set; }
 
@@ -134,6 +138,15 @@ namespace OpenFoodFacts4Net.Json.Data
         [JsonProperty("product_name")]
         [JsonConverter(typeof(ProductStringConverter))]
         public string ProductName { get; set; }
+
+        [JsonProperty("product_quantity")]
+        public string ProductQuantity { get; set; }
+
+        [JsonProperty("product_quantity_unit")]
+        public string ProductQuantityUnit { get; set; }
+
+        [JsonProperty("quantity")]
+        public string Quantity { get; set; }
 
         [JsonProperty("purchase_places")]
         public string PurchasePlaces { get; set; }
