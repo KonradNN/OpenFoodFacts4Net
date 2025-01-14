@@ -30,14 +30,14 @@ jobs:
     - name: Check if package version exists
       id: check-api
       run: |
-        PACKAGE_NAME=$(dotnet list package --include-transitive | grep -oP "(?<=Project\:\s)[^ ]+")
-        VERSION=$(dotnet list package --include-transitive | grep -oP "(?<=Version\:\s)[^\n]+")
+        PACKAGE_NAME=$(dotnet msbuild /t:GetPackageName /nologo /nodeReuse:false /p:VersionPrefix=1.0.0;Configuration=Release src/ApiClient/ApiClient.csproj | tail -n 1)
+        VERSION=$(dotnet msbuild /t:GetVersion /nologo /nodeReuse:false /p:VersionPrefix=1.0.0;Configuration=Release src/ApiClient/ApiClient.csproj | tail -n 1)
         EXISTS=$(curl --silent -u ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} \
           https://nuget.pkg.github.com/${{ github.repository_owner }}/download/${PACKAGE_NAME}/${VERSION}.nupkg | head -1 | wc -c)
         echo "::set-output name=exists::$EXISTS"
 
     - name: Publish NuGet package to GitHub Packages
-      if: steps.check-api.outputs.exists == 0
+      if: steps.check-api.outputs.exists == '0'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: dotnet nuget push 'src/ApiClient/bin/Release/*.nupkg' --source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json --api-key $GITHUB_TOKEN
@@ -66,14 +66,14 @@ jobs:
     - name: Check if package version exists
       id: check-json
       run: |
-        PACKAGE_NAME=$(dotnet list package --include-transitive | grep -oP "(?<=Project\:\s)[^ ]+")
-        VERSION=$(dotnet list package --include-transitive | grep -oP "(?<=Version\:\s)[^\n]+")
+        PACKAGE_NAME=$(dotnet msbuild /t:GetPackageName /nologo /nodeReuse:false /p:VersionPrefix=1.0.0;Configuration=Release src/Json/Json.csproj | tail -n 1)
+        VERSION=$(dotnet msbuild /t:GetVersion /nologo /nodeReuse:false /p:VersionPrefix=1.0.0;Configuration=Release src/Json/Json.csproj | tail -n 1)
         EXISTS=$(curl --silent -u ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} \
           https://nuget.pkg.github.com/${{ github.repository_owner }}/download/${PACKAGE_NAME}/${VERSION}.nupkg | head -1 | wc -c)
         echo "::set-output name=exists::$EXISTS"
 
     - name: Publish NuGet package to GitHub Packages
-      if: steps.check-json.outputs.exists == 0
+      if: steps.check-json.outputs.exists == '0'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: dotnet nuget push 'src/Json/bin/Release/*.nupkg' --source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json --api-key $GITHUB_TOKEN
